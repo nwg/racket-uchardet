@@ -29,3 +29,4 @@ $(all_libs_dst): $(lib_dest)
 
 $(lib_dest)/%.dylib: $(lib_src)/%.dylib
 	cp -a $< $@
+	touch $@
