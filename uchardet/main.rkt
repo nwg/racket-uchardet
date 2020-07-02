@@ -1,5 +1,8 @@
 #lang racket/base
 
+(require "private/interface.rkt")
+(provide (all-from-out "private/interface.rkt"))
+
 (module+ test
   (require rackunit))
 
@@ -25,39 +28,16 @@
 
 ;; Code here
 
-(require (prefix-in ucd: "interface.rkt"))
-(provide (all-from-out "interface.rkt"))
-
 (module+ test
   ;; Any code in this `test` submodule runs when this file is run using DrRacket
   ;; or with `raco test`. The code here does not run when this file is
   ;; required by another module.
 
-    (define (get-charset filename)
-        (let ([bytes (make-bytes 4096)]
-              [ucd (ucd:new)])
-          (with-input-from-file
-            data-file
-            (λ ()
-               (define (loop)
-                 (let ([result (read-bytes! bytes)])
-                   (if (eof-object? result)
-                       (begin
-                           (ucd:data-end ucd)
-                           (ucd:get-charset ucd))
-                       (begin
-                         (ucd:handle-data ucd bytes result)
-                         (let ([charset (ucd:get-charset ucd)])
-                           (if (not (equal? charset ""))
-                               charset
-                               (loop)))))))
-               (loop))
-            #:mode 'binary)))
 
     (require racket/runtime-path)
 
     (define-runtime-path data-file "test-data/sample.WINDOWS-1252")
-    (check-equal? (get-charset data-file) "WINDOWS-1252"))
+    (check-equal? (uchardet-get-charset data-file) "WINDOWS-1252"))
 
 (module+ main
   ;; (Optional) main submodule. Put code here if you need it to be executed when

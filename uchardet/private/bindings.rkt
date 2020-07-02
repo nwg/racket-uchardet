@@ -2,7 +2,8 @@
 
 (require ffi/unsafe
          ffi/unsafe/define
-         racket/bool)
+         racket/bool
+         ffi/unsafe/alloc)
 
 (provide new delete handle-data data-end reset get-charset)
 
@@ -15,22 +16,19 @@
 
 (define check-zero? (check zero?))
 
-(define check-null-str?
- (check
-  (λ (v)
-   (or
-    (false? v)
-    (zero? (ptr-ref v _byte 0))))))
-
 (define uchardet_t-pointer (_cpointer 'uchardet_t))
 
-(define-uchardet new
-                 (_fun -> uchardet_t-pointer)
-                 #:c-id uchardet_new)
+(define-uchardet
+  delete
+  (_fun uchardet_t-pointer -> _void)
+  #:c-id uchardet_delete
+  #:wrap (deallocator))
 
-(define-uchardet delete
-                 (_fun uchardet_t-pointer -> _void)
-                 #:c-id uchardet_delete)
+(define-uchardet
+  new
+  (_fun -> uchardet_t-pointer)
+  #:c-id uchardet_new
+  #:wrap (allocator delete))
 
 (define-uchardet handle-data
                  (_fun uchardet_t-pointer _bytes _int -> (r : _int)
